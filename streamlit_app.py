@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
 
 import streamlit as st
 
@@ -30,9 +31,10 @@ def main() -> None:
 
     db_mtime = DB_PATH.stat().st_mtime if DB_PATH.exists() else 0
     df = load_data(DB_PATH, db_mtime)
-    if st.button("Refresh data"):
-        # Force Streamlit to rerun the script (immediate refresh)
-        st.experimental_rerun()
+    if DB_PATH.exists():
+        st.caption(f"Last updated: {datetime.fromtimestamp(db_mtime).isoformat()}")
+    else:
+        st.caption("No local database found; run crawler to populate data.")
     if df.empty:
         st.warning(f"Database not found or no data in `{DB_PATH}`. Run crawler to populate data.")
         return
